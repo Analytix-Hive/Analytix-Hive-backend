@@ -4,20 +4,11 @@ set -e
 
 # Apply database migrations
 echo "Applying database migrations..."
-python manage.py makemigrations
 python manage.py migrate
 
 # Start server
 echo "Starting server..."
-exec gunicorn core.wsgi:application --bind 0.0.0.0:8000
-
-
-# Directory to watch (change if needed)
-WATCH_DIR="."
-
-cd "$WATCH_DIR" || exit 1
-
-echo "Watching $WATCH_DIR for changes..."
+exec gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3 --log-config /app/logging.conf
 
 while inotifywait -r -e modify,create,delete,move .; do
     git add .
